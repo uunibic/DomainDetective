@@ -34,6 +34,15 @@ It all began while I was searching for a suitable domain for my portfolio `mahes
    ```
    $ go mod tidy
    ```
+6. Set the env variables:
+
+   ```
+   export GODADDY_API_KEY="<value-here>"
+   export GODADDY_API_SECRET="<value-here>"
+   export HOSTINGER_AUTH_TOKEN="www.hostinger.com"
+   export NAMECOM_SECRET_KEY="<value-here>"
+   export NAMECOM_USER_NAME="<value-here>"
+   ```
 
 ## Usage
 
