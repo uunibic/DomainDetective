@@ -20,9 +20,10 @@ func main() {
     godaddy := registrars.NewGoDaddy(client, os.Getenv("GODADDY_API_KEY"), os.Getenv("GODADDY_API_SECRET"))
     hostinger := registrars.NewHostinger(client, os.Getenv("HOSTINGER_AUTH_TOKEN"))
     dreamhost := registrars.NewDreamHost(client, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
+    namecom := registrars.NewNameCom(client, os.Getenv("NAMECOM_USER_NAME"), os.Getenv("NAMECOM_SECRET_KEY"))
 
     if *domain != "" {
-        processDomain(*domain, godaddy, hostinger, dreamhost)
+        processDomain(*domain, godaddy, hostinger, dreamhost, namecom)
     }
 
     if *filename != "" {
@@ -34,7 +35,7 @@ func main() {
 
         scanner := bufio.NewScanner(file)
         for scanner.Scan() {
-            processDomain(scanner.Text(), godaddy, hostinger, dreamhost)
+            processDomain(scanner.Text(), godaddy, hostinger, dreamhost, namecom)
         }
 
         if err := scanner.Err(); err != nil {
@@ -43,8 +44,8 @@ func main() {
     }
 }
 
-func processDomain(domainName string, godaddy, hostinger, dreamhost registrars.Registrar) {
-    // Check GoDaddy first
+func processDomain(domainName string, godaddy, hostinger, dreamhost, namecom registrars.Registrar) {
+
     availableGoDaddy, priceGoDaddy, err := godaddy.CheckDomainAvailability(domainName)
     if err != nil {
         log.Printf("Error checking domain %s on GoDaddy: %v\n", domainName, err)
@@ -56,13 +57,12 @@ func processDomain(domainName string, godaddy, hostinger, dreamhost registrars.R
         fmt.Printf("[GoDaddy] %s - Available for $%.2f (%d year) ✅\n", domainName, priceGoDaddy, 1)
     }
 
-    // If available on GoDaddy, check other registrars concurrently
     results := make(chan string)
     go checkAndPrintAvailabilityConcurrent(hostinger, "Hostinger", domainName, results)
     go checkAndPrintAvailabilityConcurrent(dreamhost, "DreamHost", domainName, results)
+    go checkAndPrintAvailabilityConcurrent(namecom, "Name.com", domainName, results)
 
-    // Collect results from other registrars
-    for i := 0; i < 2; i++ { // Number of registrars checked concurrently
+    for i := 0; i < 3; i++ {
         result := <-results
         if result != "" {
             fmt.Print(result)
@@ -82,32 +82,3 @@ func checkAndPrintAvailabilityConcurrent(registrar registrars.Registrar, registr
         results <- ""
     }
 }
-
-// func processDomain(domainName string, godaddy, hostinger, dreamhost registrars.Registrar) {
-//     availableGoDaddy, priceGoDaddy, err := godaddy.CheckDomainAvailability(domainName)
-//     if err != nil {
-//         log.Printf("Error checking domain %s on GoDaddy: %v\n", domainName, err)
-//     } else if availableGoDaddy {
-//         fmt.Printf("[GoDaddy] %s - Available for $%.2f (%d year) ✅\n", domainName, priceGoDaddy, 1)
-//     }
-
-//     availableHostinger, priceHostinger, err := hostinger.CheckDomainAvailability(domainName)
-//     if err != nil {
-//         log.Printf("Error checking domain %s on Hostinger: %v\n", domainName, err)
-//     } else if availableHostinger {
-//         fmt.Printf("[Hostinger] %s - Available for $%.2f (%d year) ✅\n", domainName, priceHostinger, 1)
-//     }
-
-//     // Checking domain availability on DreamHost
-//     availableDreamHost, priceDreamHost, err := dreamhost.CheckDomainAvailability(domainName)
-//     if err != nil {
-//         log.Printf("Error checking domain %s on DreamHost: %v\n", domainName, err)
-//     } else if availableDreamHost {
-//         fmt.Printf("[DreamHost] %s - Available for $%.2f (%d year) ✅\n", domainName, priceDreamHost, 1)
-//     }
-
-//     // If the domain is not available on any of the registrars
-//     if !availableGoDaddy {
-//         fmt.Printf("[Registrar] %s - Domain not available ❌\n", domainName)
-//     }
-// }
