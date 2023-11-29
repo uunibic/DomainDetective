@@ -32,7 +32,7 @@ It all began while I was searching for a suitable domain for my portfolio `mahes
 5. Use the command to synchronize with the actual dependencies used in the codebase:
 
    ```
-   $ go mod tidy
+   $ go mod init
    ```
 6. Set the env variables:
 
