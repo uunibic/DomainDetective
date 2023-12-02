@@ -69,4 +69,4 @@ It all began while I was searching for a suitable domain for my portfolio `mahes
 
 ## Contributions
 
-Join me in making domain hunting a breeze with DomainDetective! Your contribution, big or small, plays a part in this exciting journey. Thank you for your interest and for checking out the tool.
+Although this was a learning project, I would love to invite you guys to join me in making domain hunting a breeze with DomainDetective! Your contribution, big or small, plays a part in this exciting journey. Thank you for your interest and for checking out the tool.
